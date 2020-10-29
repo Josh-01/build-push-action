@@ -33,7 +33,7 @@ async function run(): Promise<void> {
 
     core.info(`🏃 Getting image info...`);
     let args2: string[] = [inputs.tags[0]];
-    await exec.exec('docker buildx image inspect', args2).then(res => {
+    await exec.exec('docker buildx imagetools inspect', args2).then(res => {
       if (res.stderr != '' && !res.success) {
         throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
       }
@@ -47,7 +47,10 @@ async function run(): Promise<void> {
       core.setOutput('digest', imageID);
     }
 
-    core.setOutput('dockerfilePath', core.getInput('file') || '.Dockerfile');
+    let dockerfilePath = core.getInput('file') || 'Dockerfile';
+    core.info('🛒 Dockerfile path...');
+    core.info(`${dockerfilePath}`);
+    core.setOutput('dockerfilePath', dockerfilePath);
   } catch (error) {
     core.setFailed(error.message);
   }
