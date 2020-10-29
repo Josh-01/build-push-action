@@ -2373,6 +2373,7 @@ const context = __importStar(__webpack_require__(842));
 const exec = __importStar(__webpack_require__(757));
 const stateHelper = __importStar(__webpack_require__(647));
 const core = __importStar(__webpack_require__(186));
+const github = __importStar(__webpack_require__(438));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -2387,6 +2388,11 @@ function run() {
             core.info(`📣 Buildx version: ${buildxVersion}`);
             const defContext = context.defaultContext();
             let inputs = yield context.getInputs(defContext);
+            let dockerfilePath = core.getInput('file') || 'Dockerfile';
+            core.info('🛒 Dockerfile path...');
+            core.info(`${dockerfilePath}`);
+            core.setOutput('dockerfilePath', dockerfilePath);
+            inputs.labels.push(`org.opencontainers.image.source=https://github.com/${github.context.repo.repo}/${dockerfilePath}`);
             core.info(`🏃 Starting build...`);
             const args = yield context.getArgs(inputs, defContext, buildxVersion);
             yield exec.exec('docker', args).then(res => {
@@ -2396,7 +2402,7 @@ function run() {
             });
             core.info(`🏃 Getting image info...`);
             let args2 = [inputs.tags[0]];
-            yield exec.exec('docker buildx imagetools inspect', args2).then(res => {
+            yield exec.exec('docker image inspect', args2).then(res => {
                 if (res.stderr != '' && !res.success) {
                     throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
@@ -2408,10 +2414,6 @@ function run() {
                 core.info(`${imageID}`);
                 core.setOutput('digest', imageID);
             }
-            let dockerfilePath = core.getInput('file') || '.Dockerfile';
-            core.info('🛒 Dockerfile path...');
-            core.info(`${dockerfilePath}`);
-            core.setOutput('dockerfilePath', dockerfilePath);
         }
         catch (error) {
             core.setFailed(error.message);

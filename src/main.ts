@@ -5,6 +5,7 @@ import * as context from './context';
 import * as exec from './exec';
 import * as stateHelper from './state-helper';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 async function run(): Promise<void> {
   try {
@@ -23,8 +24,16 @@ async function run(): Promise<void> {
     const defContext = context.defaultContext();
     let inputs: context.Inputs = await context.getInputs(defContext);
 
+    let dockerfilePath = core.getInput('file') || 'Dockerfile';
+    core.info('🛒 Dockerfile path...');
+    core.info(`${dockerfilePath}`);
+    core.setOutput('dockerfilePath', dockerfilePath);
+    inputs.labels.push(
+      `org.opencontainers.image.source=https://github.com/${github.context.repo.repo}/${dockerfilePath}`
+    );
     core.info(`🏃 Starting build...`);
     const args: string[] = await context.getArgs(inputs, defContext, buildxVersion);
+
     await exec.exec('docker', args).then(res => {
       if (res.stderr != '' && !res.success) {
         throw new Error(`buildx call failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
@@ -33,7 +42,7 @@ async function run(): Promise<void> {
 
     core.info(`🏃 Getting image info...`);
     let args2: string[] = [inputs.tags[0]];
-    await exec.exec('docker buildx imagetools inspect', args2).then(res => {
+    await exec.exec('docker image inspect', args2).then(res => {
       if (res.stderr != '' && !res.success) {
         throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
       }
@@ -46,11 +55,6 @@ async function run(): Promise<void> {
       core.info(`${imageID}`);
       core.setOutput('digest', imageID);
     }
-
-    let dockerfilePath = core.getInput('file') || 'Dockerfile';
-    core.info('🛒 Dockerfile path...');
-    core.info(`${dockerfilePath}`);
-    core.setOutput('dockerfilePath', dockerfilePath);
   } catch (error) {
     core.setFailed(error.message);
   }
