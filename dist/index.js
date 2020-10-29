@@ -2394,7 +2394,15 @@ function run() {
                     throw new Error(`buildx call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
             });
-            const imageID = yield buildx.getImageID();
+            core.info(`🏃 Getting image info...`);
+            let args2 = [inputs.tags[0].toString()];
+            yield exec.exec('docker image inspect', args2).then(res => {
+                if (res.stderr != '' && !res.success) {
+                    throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
+                }
+                core.info(res.stdout.toString());
+            });
+            let imageID = yield buildx.getImageID();
             if (imageID) {
                 core.info('🛒 Extracting digest...');
                 core.info(`${imageID}`);
