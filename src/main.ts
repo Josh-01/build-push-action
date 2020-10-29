@@ -31,7 +31,14 @@ async function run(): Promise<void> {
       }
     });
 
-    const imageID = await buildx.getImageID();
+    let args2: string[] = [ inputs.tags[0].toString() ];
+    await exec.exec('docker image inspect', args2).then(res => {
+      if (res.stderr != '' && !res.success) {
+        throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
+      }
+    });
+    
+    let imageID = await buildx.getImageID();
     if (imageID) {
       core.info('🛒 Extracting digest...');
       core.info(`${imageID}`);
