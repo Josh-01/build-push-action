@@ -29,7 +29,7 @@ async function run(): Promise<void> {
     core.info(`${dockerfilePath}`);
     core.setOutput('dockerfilePath', dockerfilePath);
     inputs.labels.push(
-      `org.opencontainers.image.source=https://github.com/${github.context.repo.repo}/${dockerfilePath}`
+      `org.opencontainers.image.source=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${dockerfilePath}`
     );
     core.info(`🏃 Starting build...`);
     const args: string[] = await context.getArgs(inputs, defContext, buildxVersion);
