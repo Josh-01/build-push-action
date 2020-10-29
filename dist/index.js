@@ -2402,7 +2402,18 @@ function run() {
             });
             core.info(`🏃 Getting image info...`);
             let args2 = [inputs.tags[0]];
-            yield exec.exec('docker image inspect', args2).then(res => {
+            let inspectCommand = 'docker image inspect';
+            if (inputs.push == true) {
+                inputs.push = false;
+                inputs.load = true;
+                const args3 = yield context.getArgs(inputs, defContext, buildxVersion);
+                yield exec.exec('docker', args3).then(res => {
+                    if (res.stderr != '' && !res.success) {
+                        throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
+                    }
+                });
+            }
+            yield exec.exec(inspectCommand, args2).then(res => {
                 if (res.stderr != '' && !res.success) {
                     throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
