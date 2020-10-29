@@ -2395,8 +2395,8 @@ function run() {
                 }
             });
             core.info(`🏃 Getting image info...`);
-            let args2 = [inputs.tags[0].toString()];
-            yield exec.exec('docker image inspect', args2).then(res => {
+            //let args2: string[] = await context.getArgs(inputs, defContext, buildxVersion);
+            yield exec.exec('docker image inspect', args).then(res => {
                 if (res.stderr != '' && !res.success) {
                     throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
