@@ -2401,15 +2401,14 @@ function run() {
                 }
             });
             core.info(`🏃 Getting image info...`);
-            /*if (inputs.push == true) {
-              const args3: string[] = [inputs.tags[0]];
-        
-              await exec.exec('docker push', args3).then(res => {
-                if (res.stderr != '' && !res.success) {
-                  throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
-                }
-              });
-            }*/
+            if (inputs.push == true) {
+                const args3 = [inputs.tags[0]];
+                yield exec.exec('docker pull', args3).then(res => {
+                    if (res.stderr != '' && !res.success) {
+                        throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
+                    }
+                });
+            }
             let args2 = [inputs.tags[0]];
             let inspectCommand = 'docker image inspect';
             yield exec.exec(inspectCommand, args2).then(res => {
