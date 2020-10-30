@@ -2389,11 +2389,6 @@ function run() {
             const defContext = context.defaultContext();
             let inputs = yield context.getInputs(defContext);
             let dockerfilePath = core.getInput('file') || 'Dockerfile';
-            //Add dockerfilePaths as env variable which is an array of strings
-            let myInput = JSON.parse(core.getInput('dockerfilePaths') || '[]');
-            let imageID = yield buildx.getImageID();
-            myInput.push(`{ ${imageID} : ${dockerfilePath} }`);
-            core.exportVariable('dockerfilePaths', JSON.stringify(myInput));
             //Add dockerfile path to label
             inputs.labels.push(`org.opencontainers.image.source=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${dockerfilePath}`);
             core.info(`🏃 Starting build...`);
@@ -2403,7 +2398,12 @@ function run() {
                     throw new Error(`buildx call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
             });
+            let imageID = yield buildx.getImageID();
             if (imageID) {
+                //Add dockerfilePaths as env variable which is an array of strings
+                let myInput = JSON.parse(core.getInput('dockerfilePaths') || '[]');
+                myInput.push(`{ ${imageID} : ${dockerfilePath} }`);
+                core.exportVariable('dockerfilePaths', JSON.stringify(myInput));
                 core.info('🛒 Extracting digest...');
                 core.info(`${imageID}`);
                 core.setOutput('digest', imageID);
