@@ -41,20 +41,18 @@ async function run(): Promise<void> {
     });
 
     core.info(`🏃 Getting image info...`);
-    let args2: string[] = [inputs.tags[0]];
-    let inspectCommand: string = 'docker image inspect';
     if (inputs.push == true) {
-      inputs.push = false;
-      inputs.load = true;
-      const args3: string[] = await context.getArgs(inputs, defContext, buildxVersion);
+      const args3: string[] = [inputs.tags[0]];
 
-      await exec.exec('docker', args3).then(res => {
+      await exec.exec('docker push', args3).then(res => {
         if (res.stderr != '' && !res.success) {
           throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
         }
       });
     }
 
+    let args2: string[] = [inputs.tags[0]];
+    let inspectCommand: string = 'docker image inspect';
     await exec.exec(inspectCommand, args2).then(res => {
       if (res.stderr != '' && !res.success) {
         throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
