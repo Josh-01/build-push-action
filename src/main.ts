@@ -27,7 +27,7 @@ async function run(): Promise<void> {
     let dockerfilePath = core.getInput('file') || 'Dockerfile';
 
     //Add dockerfilePaths as env variable which is an array of strings
-    let myInput: string[] = JSON.parse(core.getInput('dockerfilePaths')) || [];
+    let myInput: string[] = JSON.parse(core.getInput('dockerfilePaths') || '[]');
     let imageID = await buildx.getImageID();
     myInput.push(JSON.stringify({imageID: dockerfilePath}));
     core.exportVariable('dockerfilePaths', JSON.stringify(myInput));

@@ -2390,7 +2390,7 @@ function run() {
             let inputs = yield context.getInputs(defContext);
             let dockerfilePath = core.getInput('file') || 'Dockerfile';
             //Add dockerfilePaths as env variable which is an array of strings
-            let myInput = JSON.parse(core.getInput('dockerfilePaths')) || [];
+            let myInput = JSON.parse(core.getInput('dockerfilePaths') || '[]');
             let imageID = yield buildx.getImageID();
             myInput.push(JSON.stringify({ imageID: dockerfilePath }));
             core.exportVariable('dockerfilePaths', JSON.stringify(myInput));
