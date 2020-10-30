@@ -41,7 +41,7 @@ async function run(): Promise<void> {
     });
 
     core.info(`🏃 Getting image info...`);
-    if (inputs.push == true) {
+    /*if (inputs.push == true) {
       const args3: string[] = [inputs.tags[0]];
 
       await exec.exec('docker push', args3).then(res => {
@@ -49,7 +49,7 @@ async function run(): Promise<void> {
           throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
         }
       });
-    }
+    }*/
 
     let args2: string[] = [inputs.tags[0]];
     let inspectCommand: string = 'docker image inspect';
