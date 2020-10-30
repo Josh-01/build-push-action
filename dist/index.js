@@ -2392,7 +2392,7 @@ function run() {
             //Add dockerfilePaths as env variable which is an array of strings
             let myInput = JSON.parse(core.getInput('dockerfilePaths') || '[]');
             let imageID = yield buildx.getImageID();
-            myInput.push(JSON.stringify({ imageID: dockerfilePath }));
+            myInput.push(`{ ${imageID} : ${dockerfilePath} }`);
             core.exportVariable('dockerfilePaths', JSON.stringify(myInput));
             //Add dockerfile path to label
             inputs.labels.push(`org.opencontainers.image.source=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${dockerfilePath}`);
