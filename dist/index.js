@@ -2389,9 +2389,12 @@ function run() {
             const defContext = context.defaultContext();
             let inputs = yield context.getInputs(defContext);
             let dockerfilePath = core.getInput('file') || 'Dockerfile';
-            core.info('🛒 Dockerfile path...');
-            core.info(`${dockerfilePath}`);
-            core.setOutput('dockerfilePath', dockerfilePath);
+            //Add dockerfilePaths as env variable which is an array of strings
+            let myInput = JSON.parse(core.getInput('dockerfilePaths')) || [];
+            let imageID = yield buildx.getImageID();
+            myInput.push(JSON.stringify({ imageID: dockerfilePath }));
+            core.exportVariable('dockerfilePaths', JSON.stringify(myInput));
+            //Add dockerfile path to label
             inputs.labels.push(`org.opencontainers.image.source=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${dockerfilePath}`);
             core.info(`🏃 Starting build...`);
             const args = yield context.getArgs(inputs, defContext, buildxVersion);
@@ -2400,24 +2403,6 @@ function run() {
                     throw new Error(`buildx call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
                 }
             });
-            core.info(`🏃 Getting image info...`);
-            if (inputs.push == true) {
-                const args3 = [inputs.tags[0]];
-                yield exec.exec('docker pull', args3).then(res => {
-                    if (res.stderr != '' && !res.success) {
-                        throw new Error(`docker images push failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
-                    }
-                });
-            }
-            let args2 = [inputs.tags[0]];
-            let inspectCommand = 'docker image inspect';
-            yield exec.exec(inspectCommand, args2).then(res => {
-                if (res.stderr != '' && !res.success) {
-                    throw new Error(`image inspect call failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
-                }
-                core.info(res.stdout.toString());
-            });
-            let imageID = yield buildx.getImageID();
             if (imageID) {
                 core.info('🛒 Extracting digest...');
                 core.info(`${imageID}`);
