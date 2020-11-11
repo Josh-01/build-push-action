@@ -12064,7 +12064,7 @@ function tmpNameSync(options) {
 exports.tmpNameSync = tmpNameSync;
 function getInputs(defaultContext) {
     return __awaiter(this, void 0, void 0, function* () {
-        return {
+        let userInputs = {
             context: core.getInput('context') || defaultContext,
             file: core.getInput('file') || 'Dockerfile',
             buildArgs: yield getInputList('build-args', true),
@@ -12083,8 +12083,18 @@ function getInputs(defaultContext) {
             cacheTo: yield getInputList('cache-to', true),
             secrets: yield getInputList('secrets', true),
             githubToken: core.getInput('github-token'),
-            ssh: yield getInputList('ssh')
+            ssh: yield getInputList('ssh'),
+            traceData: core.getInput('trace-data') || 'false'
         };
+        if (userInputs.traceData == 'true' && //if user explictly asks to add traceData
+            (userInputs.load == true ||
+                userInputs.push == true ||
+                userInputs.outputs.find(val => val.indexOf('type=image') > -1 || val.indexOf('type=registry') > -1))) {
+            //Add link to dockerfile as label
+            let dockerfilePath = userInputs.file;
+            userInputs.labels.push(`dockerfile-path=${defaultContext}/${dockerfilePath}`);
+        }
+        return userInputs;
     });
 }
 exports.getInputs = getInputs;

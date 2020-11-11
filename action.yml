@@ -70,6 +70,10 @@ inputs:
   ssh:
     description: "List of SSH agent socket or keys to expose to the build"
     required: false
+  trace-data:
+    description: "To add traceability label to image"
+    required: false
+    default: 'false'
 
 outputs:
   digest:
