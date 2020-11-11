@@ -12092,7 +12092,7 @@ function getInputs(defaultContext) {
                 userInputs.outputs.find(val => val.indexOf('type=image') > -1 || val.indexOf('type=registry') > -1))) {
             //Add link to dockerfile as label
             let dockerfilePath = userInputs.file;
-            let repoPath = defaultContext.replace('#head', '/blob');
+            let repoPath = defaultContext.replace('.git#heads', '/blob');
             userInputs.labels.push(`dockerfile-path=${repoPath}/${dockerfilePath}`);
         }
         return userInputs;

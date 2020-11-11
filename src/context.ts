@@ -85,7 +85,7 @@ export async function getInputs(defaultContext: string): Promise<Inputs> {
   ) {
     //Add link to dockerfile as label
     let dockerfilePath = userInputs.file;
-    let repoPath = defaultContext.replace('#head', '/blob');
+    let repoPath = defaultContext.replace('.git#heads', '/blob');
     userInputs.labels.push(`dockerfile-path=${repoPath}/${dockerfilePath}`);
   }
 
